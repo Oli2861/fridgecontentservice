@@ -18,6 +18,8 @@ services:
       - ./volumes/postgres:/var/lib/postgresql/data
 
   fridgecontentservice:
+    build: 
+      context: ./fridgecontentservice
     image: fridgecontentservice
     container_name: fridgecontentservice
     ports:
@@ -25,10 +27,16 @@ services:
     expose:
       - "8080:8080"
     depends_on:
-      - postgresql
+      postgresql:
+        condition: service_started
     environment:
       POSTGRES_URL: postgresql
       POSTGRES_PORT: "5432"
       POSTGRES_USERNAME: "smart2fridge"
       POSTGRES_PASSWORD: "4711"
       POSTGRES_DB: smart2fridgeDB
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 20s
+        max_attempts: 2
