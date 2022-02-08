@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: inventoryservice
+  profiles:
+    active: default
+  sql:
+    init:
+      schema-locations: classpath:sql/schema.sql
+      mode: always
+postgres:
+  url: localhost
+  port: 5432
+  username: smart2fridge
+  password: 4711
+  db: smart2fridgeDB
