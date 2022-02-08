@@ -18,7 +18,7 @@ class FridgeContentController(
         @RequestBody items: List<Item>
     ): ResponseEntity<URI> {
         val snapshotId = fridgeContentService.saveItems(items)
-        val location = URI("v1/item/$snapshotId")
+        val location = URI("/v1/item/bulk/$snapshotId")
         return ResponseEntity.created(location).build()
     }
 
