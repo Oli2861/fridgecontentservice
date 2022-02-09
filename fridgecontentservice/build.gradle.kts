@@ -38,6 +38,7 @@ dependencies {
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
+    testImplementation("junit:junit:4.13.1")
 
     //h2 & r2dbc driver
     testImplementation("com.h2database:h2")

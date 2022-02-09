@@ -6,8 +6,8 @@ import org.springframework.data.relational.core.mapping.Table
 @Table
 data class Item(
     @Id
-    var id: Int?,
-    var snapshotId: Int?,
+    var id: Int? = null,
+    var snapshotId: Int? = null,
     val description: String,
     var amount: Int = 0
 )
