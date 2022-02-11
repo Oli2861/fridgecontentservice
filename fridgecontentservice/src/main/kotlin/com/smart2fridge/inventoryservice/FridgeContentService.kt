@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
 
-object MessageConstants{
+object MessageConstants {
     const val SNAPSHOT_CREATE_MESSAGE_CODE = "snapshot.create.message"
     const val SNAPSHOT_CREATE_FAIL_MESSAGE_CODE = "snapshot.create.fail.message"
     const val SNAPSHOT_GET_MESSAGE = "snapshot.get.message"
@@ -33,7 +33,6 @@ class FridgeContentService(
     @Autowired private val snapshotRepository: SnapshotRepository,
     @Autowired private val messageSource: MessageSource
 ) {
-
 
     /**
      * Saves items to the database, produces a snapshot associated to them in the process.
@@ -83,21 +82,20 @@ class FridgeContentService(
      * @return Object containing the snapshotId, date of the snapshot and the items.
      */
     suspend fun getItemsWithContext(snapshotId: Int, locale: Locale): Response {
-        val items = getItems(snapshotId).toList()
         val snapshot = snapshotRepository.findById(snapshotId)
-
-        return if (snapshot != null) {
-            Response(
-                messageSource.getMessage(SNAPSHOT_GET_MESSAGE, null, locale).format(snapshotId),
-                snapshotId,
-                snapshot.captureDate,
-                items
-            )
-        } else {
+        return if(snapshot == null){
             Response(
                 messageSource.getMessage(SNAPSHOT_GET_FAIL_MESSAGE, null, locale).format(snapshotId),
                 snapshotId,
                 LocalDateTime.MIN,
+                listOf()
+            )
+        }else{
+            val items = getItems(snapshotId).toList()
+            Response(
+                messageSource.getMessage(SNAPSHOT_GET_MESSAGE, null, locale).format(snapshotId),
+                snapshotId,
+                snapshot.captureDate,
                 items
             )
         }
@@ -109,35 +107,29 @@ class FridgeContentService(
      * @return Object containing the snapshotId, date of the snapshot and the items which got deleted.
      */
     suspend fun deleteItems(snapshotId: Int, locale: Locale): Response {
-        val items = getItems(snapshotId).toList()
         val snapshot = snapshotRepository.findById(snapshotId)
+        return if (snapshot == null) {
+            Response(
+                messageSource.getMessage(SNAPSHOT_DELETE_FAIL_MESSAGE, null, locale)
+                    .format(snapshotId),
+                snapshotId,
+                LocalDateTime.MIN,
+                listOf()
+            )
+        } else {
+            val items = getItems(snapshotId).toList()
 
-        itemRepository.deleteAllBySnapshotId(snapshotId)
-        snapshotRepository.deleteById(snapshotId)
+            itemRepository.deleteAllBySnapshotId(snapshotId)
+            snapshotRepository.deleteById(snapshotId)
 
-        return if (snapshot != null) {
             Response(
                 messageSource.getMessage(SNAPSHOT_DELETE_MESSAGE, null, locale).format(snapshotId),
                 snapshotId,
                 snapshot.captureDate,
                 items
             )
-        } else {
-            Response(
-                messageSource.getMessage(SNAPSHOT_DELETE_FAIL_MESSAGE, null, locale)
-                    .format(snapshotId),
-                snapshotId,
-                LocalDateTime.MIN,
-                items
-            )
+
+
         }
     }
-
 }
-
-data class Response(
-    val message: String,
-    val snapshotId: Int,
-    val captureDate: LocalDateTime,
-    val items: List<Item>
-)
